@@ -1,22 +1,22 @@
-'use strict'
+"use strict";
 // Template version: 1.2.6
 // see http://vuejs-templates.github.io/webpack for documentation.
 
-const path = require('path')
+const path = require("path");
 
 module.exports = {
   dev: {
     // Paths
-    assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsSubDirectory: "static",
+    assetsPublicPath: "/",
     proxyTable: {},
 
     // Various Dev Server settings
 
     // can be overwritten by process.env.HOST
     // if you want dev by ip, please set host: '0.0.0.0'
-    host: 'localhost',
-    port: 9527, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    host: "localhost",
+    port: 9524, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,
     notifyOnErrors: false,
@@ -35,7 +35,7 @@ module.exports = {
      */
 
     // https://webpack.js.org/configuration/devtool/#development
-    devtool: 'cheap-source-map',
+    devtool: "cheap-source-map",
 
     // CSS Sourcemaps off by default because relative paths are "buggy"
     // with this option, according to the CSS-Loader README
@@ -47,11 +47,11 @@ module.exports = {
 
   build: {
     // Template for index.html
-    index: path.resolve(__dirname, '../dist/index.html'),
+    index: path.resolve(__dirname, "../dist/index.html"),
 
     // Paths
-    assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'static',
+    assetsRoot: path.resolve(__dirname, "../dist"),
+    assetsSubDirectory: "static",
 
     /**
      * You can set by youself according to actual condition
@@ -60,21 +60,21 @@ module.exports = {
      * then assetsPublicPath should be set to "/bar/".
      * In most cases please use '/' !!!
      */
-    assetsPublicPath: '/',
+    assetsPublicPath: "/",
 
     /**
      * Source Maps
      */
     productionSourceMap: false,
     // https://webpack.js.org/configuration/devtool/#production
-    devtool: 'source-map',
+    devtool: "source-map",
 
     // Gzip off by default as many popular static hosts such as
     // Surge or Netlify already gzip all static assets for you.
     // Before setting to `true`, make sure to:
     // npm install --save-dev compression-webpack-plugin
     productionGzip: false,
-    productionGzipExtensions: ['js', 'css'],
+    productionGzipExtensions: ["js", "css"],
 
     // Run the build command with an extra argument to
     // View the bundle analyzer report after build finishes:
@@ -85,4 +85,4 @@ module.exports = {
     // `npm run build:prod --generate_report`
     generateAnalyzerReport: process.env.npm_config_generate_report || false
   }
-}
+};
