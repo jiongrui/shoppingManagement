@@ -85,7 +85,7 @@
         prop="id"
         sortable="custom"
         align="center"
-        width="65"
+        width="100"
       >
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
@@ -101,7 +101,7 @@
           <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.brand')" width="110px" align="center">
+      <el-table-column :label="$t('table.brand')" min-width="150px">
         <template slot-scope="scope">
           <span>{{ scope.row.brand }}</span>
         </template>
@@ -119,11 +119,6 @@
       <el-table-column :label="$t('table.volume')" width="110px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.volume }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="$t('table.status')" class-name="status-col" width="100">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -165,6 +160,19 @@
         label-width="70px"
         style="width: 400px; margin-left:50px;"
       >
+        <el-form-item :label="$t('table.type')" prop="type">
+          <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
+            <el-option
+              v-for="item in calendarTypeOptions"
+              :key="item.key"
+              :label="item.display_name"
+              :value="item.key"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('table.name')" prop="name">
+          <el-input v-model="temp.name"/>
+        </el-form-item>
         <el-form-item :label="$t('table.date')" prop="timestamp">
           <el-date-picker
             v-model="temp.timestamp"
@@ -172,13 +180,11 @@
             placeholder="Please pick a date"
           />
         </el-form-item>
-        <el-form-item :label="$t('table.name')" prop="name">
-          <el-input v-model="temp.name"/>
+        <el-form-item :label="$t('table.brand')">
+          <el-input v-model="temp.brand"/>
         </el-form-item>
-        <el-form-item :label="$t('table.status')">
-          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item"/>
-          </el-select>
+        <el-form-item :label="$t('table.volume')">
+          <el-input v-model="temp.volume"/>
         </el-form-item>
         <el-form-item :label="$t('table.importance')">
           <el-rate
@@ -225,6 +231,7 @@ import {
   createArticle,
   updateArticle
 } from '@/api/article'
+import { queryList } from '@/api/shopping'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -288,7 +295,8 @@ export default {
         timestamp: new Date(),
         name: '',
         type: '',
-        status: 'published'
+        brand: '',
+        volume: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -311,12 +319,12 @@ export default {
           }
         ],
         name: [{ required: true, message: 'name is required', trigger: 'blur' }]
-      },
-      downloadLoading: false
+      }
     }
   },
   created() {
     this.getList()
+    queryList()
   },
   methods: {
     getList() {
@@ -440,20 +448,6 @@ export default {
       fetchPv(pv).then(response => {
         this.pvData = response.data.pvData
         this.dialogPvVisible = true
-      })
-    },
-    handleDownload() {
-      this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'name', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'name', 'type', 'importance', 'status']
-        const data = this.formatJson(filterVal, this.list)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: 'table-list'
-        })
-        this.downloadLoading = false
       })
     },
     formatJson(filterVal, jsonData) {
