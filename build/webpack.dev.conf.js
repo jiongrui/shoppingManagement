@@ -9,9 +9,6 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const FriendlyErrorsPlugin = require("friendly-errors-webpack-plugin");
 const portfinder = require("portfinder");
 
-const a = require("../mysql/request");
-console.log("a", a);
-
 function resolve(dir) {
   return path.join(__dirname, "..", dir);
 }

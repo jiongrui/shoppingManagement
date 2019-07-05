@@ -1,39 +1,33 @@
-const mysql = require("mysql");
+var express = require("express");
+const bodyParser = require("body-parser");
+const { GET_API, POST_API } = require("./api");
+const dealData = require("./request");
 
-module.exports = function operateMysql(query) {
-  const connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "123456",
-    database: "shopping"
-  });
+// module.exports =
+const app = express();
 
-  connection.connect();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-  //创建products表
-  // const query = `CREATE TABLE IF NOT EXISTS products (
-  //   id INT PRIMARY KEY AUTO_INCREMENT,
-  //   name varchar(60) not null,
-  //   brand int,
-  //   volume int,
-  //   important int default 1,
-  //   type int
-  // )ENGINE=InnoDB DEFAULT CHARSET=utf8;`;
+app.all("*", function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header("Access-Control-Allow-Methods", "POST, GET"); //PUT, DELETE, OPTIONS
+  res.header("X-Powered-By", "3.2.1");
+  res.header("Content-Type", "application/json;charset=utf-8");
+  next();
+});
 
-  //修改字段数据类型
-  // const query = `alter table products modify brand int,modify type int`;
+GET_API.forEach(url => {
+  app.get(url, dealData);
+});
+POST_API.forEach(url => {
+  app.post(url, dealData);
+});
 
-  //新增数据
-  // const query = `insert into products (name,brand,volume,important,type) values
-  // ('what',1,50,2,6),('what2',1,70,2,5),('haha',1,50,4,2),('niu',1,50,3,3),('shadx',1,90,2,1)`;
-
-  //执行操作
-  let result;
-  connection.query(query, function(error, results, fields) {
-    if (error) throw error;
-    result = results;
-    console.log("The result is: ", results);
-  });
-  connection.end();
-  return result;
-};
+const server = app.listen(9524, function() {
+  const url = server.address();
+  const host = url.address;
+  const port = url.port;
+  console.log("Example is listen in %s%s", host, port);
+});
