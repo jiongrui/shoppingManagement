@@ -1,7 +1,5 @@
 const mysql = require("mysql");
-// const API = require("./api");
 const getQuery = require("./query");
-// console.log("getQuery", getQuery);
 
 module.exports = function dealData(req, res) {
   // console.log("req....", req);
@@ -52,7 +50,7 @@ module.exports = function dealData(req, res) {
   // ('what',1,50,2,6),('what2',1,70,2,5),('haha',1,50,4,2),('niu',1,50,3,3),('shadx',1,90,2,1)`;
   const query = getQuery(req);
   // console.log("query", query);
-  connection.query(query, function(error, results, fields) {
+  connection.query(query, function (error, results, fields) {
     // console.log("req.....", req);
     // console.log("res.....", res);
     if (error) throw error;

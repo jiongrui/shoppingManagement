@@ -24,7 +24,10 @@ module.exports = function getQuery(req) {
 function getCommSelectQuery(table, query) {
   const keys = Object.keys(query);
   const len = keys.length;
-  const sortTypes = { "+": "asc", "-": "desc" };
+  const sortTypes = {
+    "+": "asc",
+    "-": "desc"
+  };
   let page, limit, sort;
 
   let sql = `select * from ${table} `;
@@ -46,9 +49,9 @@ function getCommSelectQuery(table, query) {
       limit = value;
       return acc;
     }
-    return index + 1 < len
-      ? (acc += `where ${key}=${value} and `)
-      : (acc += `${key}=${value} `);
+    return index + 1 < len ?
+      (acc += `where ${key}=${value} and `) :
+      (acc += `${key}=${value} `);
   }, "");
   sort && (sql += `order by ${sort.key} ${sort.type} `);
   if (page && limit) {
@@ -63,9 +66,9 @@ function getCommSelectQuery(table, query) {
 function getCreateQuery(table, query) {
   const keys = Object.keys(query);
   const values = Object.values(query);
-  const sql = `insert into ${table} (${keys.join(",")}) values (${values.join(
+  const sql = `insert into ${table} (${keys.join(",")}) values (${ values.map(value=>`"${value}"`).join(
     ","
-  )}))`;
+  )})`;
   console.log("getCreateQuery sql", sql);
   return sql;
 }
@@ -74,9 +77,9 @@ function getUpdateQuery(table, query) {
   const keys = Object.keys(query);
   const len = keys.length;
   const keyValues = keys.reduce((acc, key, index) => {
-    return index + 1 < len
-      ? (acc += `${key}=${query[key]},`)
-      : (acc += `${key}=${query[key]}`);
+    return index + 1 < len ?
+      (acc += `${key}=${query[key]},`) :
+      (acc += `${key}=${query[key]}`);
   }, "");
   return `update ${table} set ${keyValues} where id=${query.id}`;
 }
