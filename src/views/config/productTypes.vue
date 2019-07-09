@@ -226,6 +226,7 @@ export default {
     createData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.temp.date = parseTime(this.temp.date);
           console.log("this.temp", this.temp);
           // this.temp.id = parseInt(Math.random() * 100) + 1024; // mock a id
           // this.temp.author = "vue-element-admin";
@@ -238,13 +239,14 @@ export default {
               type: "success",
               duration: 2000
             });
+            this.getList();
           });
         }
       });
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row); // copy obj
-      this.temp.date = new Date(this.temp.date);
+      // this.temp.date = new Date(this.temp.date);
       this.dialogStatus = "update";
       this.dialogFormVisible = true;
       this.$nextTick(() => {
@@ -254,16 +256,8 @@ export default {
     updateData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp);
-          tempData.date = +new Date(tempData.date); // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            for (const v of this.list) {
-              if (v.id === this.temp.id) {
-                const index = this.list.indexOf(v);
-                this.list.splice(index, 1, this.temp);
-                break;
-              }
-            }
+          this.temp.date = parseTime(this.temp.date);
+          updateProductType(this.temp).then(() => {
             this.dialogFormVisible = false;
             this.$notify({
               title: "成功",
@@ -271,6 +265,7 @@ export default {
               type: "success",
               duration: 2000
             });
+            this.getList();
           });
         }
       });

@@ -55,7 +55,7 @@ function getCommSelectQuery(table, query) {
   }, "");
   sort && (sql += `order by ${sort.key} ${sort.type} `);
   if (page && limit) {
-    const begin = (page - 1) * limit + 1;
+    const begin = (page - 1) * limit;
     sql += `limit ${begin},${limit}`;
   }
 
@@ -78,8 +78,8 @@ function getUpdateQuery(table, query) {
   const len = keys.length;
   const keyValues = keys.reduce((acc, key, index) => {
     return index + 1 < len ?
-      (acc += `${key}=${query[key]},`) :
-      (acc += `${key}=${query[key]}`);
+      (acc += `${key}='${query[key]}',`) :
+      (acc += `${key}='${query[key]}'`);
   }, "");
   return `update ${table} set ${keyValues} where id=${query.id}`;
 }

@@ -1,7 +1,18 @@
 const mysql = require("mysql");
+const MongoClient = require("mongodb").MongoClient;
 const getQuery = require("./query");
+const mongodbUrl = "mongodb://localhost:95024/"
 
-module.exports = function dealData(req, res) {
+exports.mongodbDealData = function (req, res) {
+  MongoClient.connect(mongodbUrl, {
+    useNewUrlParser: true
+  }, function (err, db) {
+    if (err) throw err;
+    const dbo = db.db("shopping");
+    // dbo.connection("products").
+  })
+}
+exports.mysqlDealData = function (req, res) {
   // console.log("req....", req);
   // console.log("res", res);
 

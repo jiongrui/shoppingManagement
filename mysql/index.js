@@ -4,7 +4,9 @@ const {
   GET_API,
   POST_API
 } = require("./api");
-const dealData = require("./request");
+const {
+  mysqlDealData
+} = require("./request");
 const app = express();
 
 app.use(bodyParser.json());
@@ -22,13 +24,13 @@ app.all("*", function (req, res, next) {
 });
 
 GET_API.forEach(url => {
-  app.get(url, dealData);
+  app.get(url, mysqlDealData);
 });
 POST_API.forEach(url => {
-  app.post(url, dealData);
+  app.post(url, mysqlDealData);
 });
 
-const server = app.listen(1122, function () {
+const server = app.listen(8985, function () {
   const url = server.address();
   const host = url.address;
   const port = url.port;
