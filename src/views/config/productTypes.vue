@@ -20,14 +20,14 @@
       @sort-change="sortChange"
     >
       <el-table-column
-        :label="$t('table.id')"
-        prop="id"
+        :label="$t('table._id')"
+        prop="_id"
         sortable="custom"
         align="center"
         width="100"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.id }}</span>
+          <span>{{ scope.row._id }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('table.date')" min-width="110px" align="center">
@@ -136,12 +136,12 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        sort: "+id"
+        sort: "+_id"
       },
       importanceOptions: [1, 2, 3],
       sortOptions: [
-        { label: "ID Ascending", key: "+id" },
-        { label: "ID Descending", key: "-id" }
+        { label: "ID Ascending", key: "+_id" },
+        { label: "ID Descending", key: "-_id" }
       ],
       temp: {
         date: new Date(),
@@ -197,15 +197,15 @@ export default {
     },
     sortChange(data) {
       const { prop, order } = data;
-      if (prop === "id") {
+      if (prop === "_id") {
         this.sortByID(order);
       }
     },
     sortByID(order) {
       if (order === "ascending") {
-        this.listQuery.sort = "+id";
+        this.listQuery.sort = "+_id";
       } else {
-        this.listQuery.sort = "-id";
+        this.listQuery.sort = "-_id";
       }
       this.handleFilter();
     },
@@ -228,7 +228,7 @@ export default {
         if (valid) {
           this.temp.date = parseTime(this.temp.date);
           console.log("this.temp", this.temp);
-          // this.temp.id = parseInt(Math.random() * 100) + 1024; // mock a id
+          // this.temp._id = parseInt(Math.random() * 100) + 1024; // mock a _id
           // this.temp.author = "vue-element-admin";
           createProductType(this.temp).then(() => {
             // this.list.unshift(this.temp);
