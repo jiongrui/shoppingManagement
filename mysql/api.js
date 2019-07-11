@@ -1,8 +1,12 @@
 const GET_API = [
   "/shopping/products/list",
+  "/shopping/products/delete",
   "/shopping/product_types/list",
+  "/shopping/product_types/delete",
   "/shopping/product_imps/list",
-  "/shopping/product_specs/list"
+  "/shopping/product_imps/delete",
+  "/shopping/product_specs/list",
+  "/shopping/product_specs/delete",
 ];
 const POST_API = [
   "/shopping/products/create",
@@ -15,4 +19,7 @@ const POST_API = [
   "/shopping/product_specs/update"
 ];
 
-module.exports = { GET_API, POST_API };
+module.exports = {
+  GET_API,
+  POST_API
+};

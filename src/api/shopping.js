@@ -47,3 +47,11 @@ export function updateProductType(query) {
     params: query
   });
 }
+
+export function deleteProductType(query) {
+  return request({
+    url: "/shopping/product_types/delete",
+    method: "get",
+    params: query
+  });
+}

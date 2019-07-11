@@ -81,14 +81,14 @@
       @sort-change="sortChange"
     >
       <el-table-column
-        :label="$t('table.id')"
-        prop="id"
+        :label="$t('table._id')"
+        prop="_id"
         sortable="custom"
         align="center"
         width="100"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.id }}</span>
+          <span>{{ scope.row._id }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('table.name')" min-width="150px">
@@ -266,18 +266,18 @@ export default {
         importance: undefined,
         name: undefined,
         type: undefined,
-        sort: "+id"
+        sort: "+_id"
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
       sortOptions: [
-        { label: "ID Ascending", key: "+id" },
-        { label: "ID Descending", key: "-id" }
+        { label: "ID Ascending", key: "+_id" },
+        { label: "ID Descending", key: "-_id" }
       ],
       statusOptions: ["published", "draft", "deleted"],
       showReviewer: false,
       temp: {
-        id: undefined,
+        _id: undefined,
         importance: 1,
         remark: "",
         name: "",
@@ -303,7 +303,7 @@ export default {
   },
   created() {
     this.getList();
-    fetchProductList({ id: 2 });
+    fetchProductList({ _id: 2 });
   },
   methods: {
     getList() {
@@ -331,21 +331,21 @@ export default {
     },
     sortChange(data) {
       const { prop, order } = data;
-      if (prop === "id") {
+      if (prop === "_id") {
         this.sortByID(order);
       }
     },
     sortByID(order) {
       if (order === "ascending") {
-        this.listQuery.sort = "+id";
+        this.listQuery.sort = "+_id";
       } else {
-        this.listQuery.sort = "-id";
+        this.listQuery.sort = "-_id";
       }
       this.handleFilter();
     },
     resetTemp() {
       this.temp = {
-        id: undefined,
+        _id: undefined,
         importance: 1,
         remark: "",
         name: "",
@@ -364,7 +364,7 @@ export default {
     createData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024; // mock a id
+          this.temp._id = parseInt(Math.random() * 100) + 1024; // mock a _id
           this.temp.author = "vue-element-admin";
           createArticle(this.temp).then(() => {
             this.list.unshift(this.temp);
@@ -393,7 +393,7 @@ export default {
           const tempData = Object.assign({}, this.temp);
           updateArticle(tempData).then(() => {
             for (const v of this.list) {
-              if (v.id === this.temp.id) {
+              if (v._id === this.temp._id) {
                 const index = this.list.indexOf(v);
                 this.list.splice(index, 1, this.temp);
                 break;

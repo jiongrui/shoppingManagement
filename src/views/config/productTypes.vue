@@ -57,7 +57,7 @@
             v-if="scope.row.status!='deleted'"
             size="mini"
             type="danger"
-            @click="handleModifyStatus(scope.row,'deleted')"
+            @click="handleDelete(scope.row)"
           >{{ $t('table.delete') }}</el-button>
         </template>
       </el-table-column>
@@ -118,7 +118,8 @@
 import {
   fetchProductTypeList,
   createProductType,
-  updateProductType
+  updateProductType,
+  deleteProductType
 } from "@/api/shopping";
 import waves from "@/directive/waves"; // Waves directive
 import { parseTime } from "@/utils";
@@ -271,14 +272,15 @@ export default {
       });
     },
     handleDelete(row) {
-      this.$notify({
-        title: "成功",
-        message: "删除成功",
-        type: "success",
-        duration: 2000
+      deleteProductType({_id:row._id}).then(res => {
+        this.$notify({
+          title: "成功",
+          message: "删除成功",
+          type: "success",
+          duration: 2000
+        });
+        this.getList();
       });
-      const index = this.list.indexOf(row);
-      this.list.splice(index, 1);
     },
     formatJson(filterVal, jsonData) {
       return jsonData.map(v =>
