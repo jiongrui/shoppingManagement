@@ -1,26 +1,24 @@
 const mysql = require("mysql");
-const {
-  MongoClient,
-  ObjectId
-} = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 const getQuery = require("./query");
 const mongodbUrl = "mongodb://localhost:27017/";
 
-exports.mongodbDealData = function (req, res) {
+exports.mongodbDealData = function(req, res) {
   MongoClient.connect(
-    mongodbUrl, {
+    mongodbUrl,
+    {
       useNewUrlParser: true
     },
-    function (err, db) {
+    function(err, db) {
       if (err) throw err;
       const dbo = db.db("shopping");
       console.log("shopping reate success");
-      dealQuery(req, res, dbo);
+      dealQuery(req, res, dbo, db);
     }
   );
 };
 
-function dealQuery(req, res, dbo) {
+function dealQuery(req, res, dbo, db) {
   const query = req.query;
   const method = req.method;
   const url = req._parsedUrl.pathname;
@@ -28,9 +26,10 @@ function dealQuery(req, res, dbo) {
   const len = urlList.length;
   const tableName = urlList[len - 2];
   const operate = urlList[len - 1];
+  let count;
 
   const operations = {
-    list: function () {
+    list: function() {
       const keys = Object.keys(query);
       const len = keys.length;
       const sortTypes = {
@@ -67,7 +66,14 @@ function dealQuery(req, res, dbo) {
       }
 
       console.log(tableName, where, sort, skip, limit);
-
+      dbo
+        .collection(tableName)
+        .find(where)
+        .count(function(err, results) {
+          if (err) throw err;
+          console.log("count results", results);
+          count = results;
+        });
       dbo
         .collection(tableName)
         .find(where)
@@ -76,10 +82,10 @@ function dealQuery(req, res, dbo) {
         .limit(limit)
         .toArray(dealResult);
     },
-    create: function () {
-      dbo.collection(tableName).insertOne(query, dealResult)
+    create: function() {
+      dbo.collection(tableName).insertOne(query, dealResult);
     },
-    update: function () {
+    update: function() {
       const where = {
         _id: ObjectId(query._id)
       };
@@ -87,16 +93,14 @@ function dealQuery(req, res, dbo) {
       const update = {
         $set: query
       };
-      dbo.collection(tableName).updateOne(where, update, dealResult)
+      dbo.collection(tableName).updateOne(where, update, dealResult);
     },
-    delete: function () {
+    delete: function() {
       const where = {
         _id: ObjectId(query._id)
       };
-      dbo.collection(tableName).deleteOne(where, dealResult)
+      dbo.collection(tableName).deleteOne(where, dealResult);
     }
-
-
   };
   const dealResult = (err, results) => {
     if (err) throw err;
@@ -107,16 +111,17 @@ function dealQuery(req, res, dbo) {
     };
     if (operate === "list") {
       result.data = results;
-      result.total = results.length;
+      result.total = count;
     }
     res.json(result);
-  }
+    db.close();
+  };
 
   operations[operate]();
 }
 
-exports.mysqlDealData = function (req, res) {
-  console.log("req....", req);
+exports.mysqlDealData = function(req, res) {
+  // console.log("req....", req);
   // console.log("res", res);
 
   const connection = mysql.createConnection({
@@ -164,7 +169,7 @@ exports.mysqlDealData = function (req, res) {
   // ('what',1,50,2,6),('what2',1,70,2,5),('haha',1,50,4,2),('niu',1,50,3,3),('shadx',1,90,2,1)`;
   const query = getQuery(req);
   // console.log("query", query);
-  connection.query(query, function (error, results, fields) {
+  connection.query(query, function(error, results, fields) {
     // console.log("req.....", req);
     // console.log("res.....", res);
     if (error) throw error;

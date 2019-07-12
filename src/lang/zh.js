@@ -4,6 +4,10 @@ export default {
     productList: "商品列表",
     orderList: "订单列表",
     customerList: "客户列表",
+    productTypes: "商品类型",
+    productSpecs: "商品规格",
+    productBrands: "商品品牌",
+    productSetting: "商品设置",
     dashboard: "首页",
     introduction: "简述",
     documentation: "文档",
@@ -140,9 +144,15 @@ export default {
     cancel: "取 消",
     confirm: "确 定",
     name: "商品名称",
-    spec: "商品规格",
+    spec: "规格",
     brand: "品牌",
-    volume: "购买量"
+    volume: "购买量",
+    _id: "ID",
+    create: "创建",
+    createDate: "创建时间",
+    updateDate: "更新时间",
+    star: "推荐指数",
+    remarks: "备注"
   },
   errorLog: {
     tips: "请点击右上角bug小图标",

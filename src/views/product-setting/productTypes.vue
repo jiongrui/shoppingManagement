@@ -19,26 +19,36 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column
-        :label="$t('table._id')"
-        prop="_id"
-        sortable="custom"
-        align="center"
-        width="100"
-      >
+      <el-table-column :label="$t('table._id')" align="center" min-width="150">
         <template slot-scope="scope">
           <span>{{ scope.row._id }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.date')" min-width="110px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.date | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-        </template>
-      </el-table-column>
-
       <el-table-column :label="$t('table.type')" min-width="150px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.type }}</span>
+          <span>{{ scope.row.name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        :label="$t('table.updateDate')"
+        prop="updateDate"
+        min-width="150px"
+        align="center"
+        sortable="custom"
+      >
+        <template slot-scope="scope">
+          <span>{{ scope.row.updateDate | parseTime() }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        :label="$t('table.createDate')"
+        prop="createDate"
+        min-width="150px"
+        align="center"
+        sortable="custom"
+      >
+        <template slot-scope="scope">
+          <span>{{ scope.row.createDate | parseTime() }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -71,37 +81,18 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="$t(textMap[dialogStatus])" :visible.sync="dialogFormVisible">
       <el-form
         ref="dataForm"
         :rules="rules"
         :model="temp"
         label-position="left"
-        label-width="70px"
+        label-width="100px"
         style="width: 400px; margin-left:50px;"
       >
-        <el-form-item :label="$t('table.type')" prop="type">
-          <el-input v-model="temp.type" />
-          <!-- <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
-            <el-option
-              v-for="item in calendarTypeOptions"
-              :key="item.key"
-              :label="item.display_name"
-              :value="item.key"
-            />
-          </el-select>-->
+        <el-form-item :label="$t('table.type')" prop="name">
+          <el-input v-model="temp.name" />
         </el-form-item>
-        <!-- <el-form-item :label="$t('table.date')" prop="date">
-          <el-date-picker v-model="temp.date" type="datetime" placeholder="Please pick a date" />
-        </el-form-item>-->
-        <!-- <el-form-item :label="$t('table.remark')">
-          <el-input
-            :autosize="{ minRows: 2, maxRows: 4}"
-            v-model="temp.remark"
-            type="textarea"
-            placeholder="Please input"
-          />
-        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{ $t('table.cancel') }}</el-button>
@@ -120,13 +111,13 @@ import {
   createProductType,
   updateProductType,
   deleteProductType
-} from "@/api/shopping";
+} from "@/api/productTypes";
 import waves from "@/directive/waves"; // Waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; // Secondary package based on el-pagination
 
 export default {
-  name: "ComplexTable",
+  name: "ProductTypes",
   components: { Pagination },
   data() {
     return {
@@ -137,34 +128,18 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        sort: "+_id"
+        sort: "-updateDate"
       },
-      importanceOptions: [1, 2, 3],
-      sortOptions: [
-        { label: "ID Ascending", key: "+_id" },
-        { label: "ID Descending", key: "-_id" }
-      ],
-      temp: {
-        date: new Date(),
-        type: ""
-      },
+      temp: {},
       dialogFormVisible: false,
       dialogStatus: "",
       textMap: {
-        update: "Edit",
-        create: "Create"
+        update: "table.edit",
+        create: "table.create"
       },
       rules: {
-        type: [
-          { required: true, message: "type is required", trigger: "change" }
-        ],
-        date: [
-          {
-            type: "date",
-            required: true,
-            message: "date is required",
-            trigger: "change"
-          }
+        name: [
+          { required: true, message: "name is required", trigger: "change" }
         ]
       }
     };
@@ -178,42 +153,19 @@ export default {
       fetchProductTypeList(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
-
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false;
-        }, 1.5 * 1000);
+        this.listLoading = false;
       });
-    },
-    handleFilter() {
-      this.listQuery.page = 1;
-      this.getList();
-    },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: "操作成功",
-        type: "success"
-      });
-      row.status = status;
     },
     sortChange(data) {
       const { prop, order } = data;
-      if (prop === "_id") {
-        this.sortByID(order);
-      }
-    },
-    sortByID(order) {
-      if (order === "ascending") {
-        this.listQuery.sort = "+_id";
-      } else {
-        this.listQuery.sort = "-_id";
-      }
-      this.handleFilter();
+      this.listQuery.sort = order === "ascending" ? `+${prop}` : `-${prop}`;
+      this.getList();
     },
     resetTemp() {
       this.temp = {
-        date: new Date(),
-        type: ""
+        updateDate: new Date(),
+        createDate: new Date(),
+        name: ""
       };
     },
     handleCreate() {
@@ -227,18 +179,11 @@ export default {
     createData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
-          this.temp.date = parseTime(this.temp.date);
-          console.log("this.temp", this.temp);
-          // this.temp._id = parseInt(Math.random() * 100) + 1024; // mock a _id
-          // this.temp.author = "vue-element-admin";
           createProductType(this.temp).then(() => {
-            // this.list.unshift(this.temp);
             this.dialogFormVisible = false;
-            this.$notify({
-              title: "成功",
-              message: "创建成功",
+            this.$message({
               type: "success",
-              duration: 2000
+              message: "创建成功"
             });
             this.getList();
           });
@@ -247,7 +192,7 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row); // copy obj
-      // this.temp.date = new Date(this.temp.date);
+      delete this.temp.createDate;
       this.dialogStatus = "update";
       this.dialogFormVisible = true;
       this.$nextTick(() => {
@@ -257,14 +202,11 @@ export default {
     updateData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
-          this.temp.date = parseTime(this.temp.date);
           updateProductType(this.temp).then(() => {
             this.dialogFormVisible = false;
-            this.$notify({
-              title: "成功",
-              message: "更新成功",
+            this.$message({
               type: "success",
-              duration: 2000
+              message: "更新成功"
             });
             this.getList();
           });
@@ -272,15 +214,26 @@ export default {
       });
     },
     handleDelete(row) {
-      deleteProductType({_id:row._id}).then(res => {
-        this.$notify({
-          title: "成功",
-          message: "删除成功",
-          type: "success",
-          duration: 2000
+      this.$confirm("确定删除?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          deleteProductType({ _id: row._id }).then(res => {
+            this.$message({
+              type: "success",
+              message: "删除成功"
+            });
+            this.getList();
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
         });
-        this.getList();
-      });
     },
     formatJson(filterVal, jsonData) {
       return jsonData.map(v =>

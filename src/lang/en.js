@@ -4,6 +4,10 @@ export default {
     productList: "Product List",
     orderList: "Order List",
     customerList: "Customer List",
+    productTypes: "Product Types",
+    productSpecs: "Product Specs",
+    productBrands: "Product Brands",
+    productSetting: "Product Setting",
     dashboard: "Dashboard",
     introduction: "Introduction",
     documentation: "Documentation",
@@ -145,7 +149,13 @@ export default {
     name: "Name",
     spec: "Spec",
     brand: "Brand",
-    volume: "Volume"
+    volume: "Volume",
+    _id: "ID",
+    create: "Create",
+    createDate: "CreateDate",
+    updateDate: "UpdateDate",
+    star: "Star",
+    remarks: "Remarks"
   },
   errorLog: {
     tips: "Please click the bug icon in the upper right corner",

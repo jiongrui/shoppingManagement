@@ -9,7 +9,7 @@ import Layout from "@/views/layout/Layout";
 /* Router Modules */
 import shoppingRouter from "./modules/shopping";
 import tableRouter from "./modules/table";
-import configRouter from "./modules/config";
+import productSettingRouter from "./modules/productSetting";
 import componentsRouter from "./modules/components";
 import chartsRouter from "./modules/charts";
 import nestedRouter from "./modules/nested";
@@ -85,7 +85,7 @@ export const constantRouterMap = [
     ]
   },
   shoppingRouter,
-  configRouter
+  productSettingRouter
   // {
   //   path: "/documentation",
   //   component: Layout,
