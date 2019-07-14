@@ -161,7 +161,7 @@
         <el-form-item :label="$t('table.name')" prop="name">
           <el-input v-model="temp.name" />
         </el-form-item>
-        <el-form-item :label="$t('table.type')" prop="typeId">
+        <el-form-item :label="$t('table.type')">
           <el-select v-model="temp.typeId" class="filter-item" clearable>
             <el-option
               v-for="item in typeList"
@@ -171,7 +171,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('table.spec')" prop="specId">
+        <el-form-item :label="$t('table.spec')">
           <el-select v-model="temp.specId" clearable class="filter-item">
             <el-option
               v-for="item in specList"
@@ -181,7 +181,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('table.brand')" prop="brandId">
+        <el-form-item :label="$t('table.brand')">
           <el-select v-model="temp.brandId" clearable class="filter-item">
             <el-option
               v-for="item in brandList"
@@ -256,8 +256,8 @@ export default {
       typeList: [],
       specList: [],
       brandList: [],
-      typeObj: [],
-      specObj: [],
+      typeObj: {},
+      specObj: {},
       brandObj: {},
       temp: {},
       dialogFormVisible: false,

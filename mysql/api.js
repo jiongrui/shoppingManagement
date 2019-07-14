@@ -1,4 +1,8 @@
 const GET_API = [
+  "/shopping/orders/list",
+  "/shopping/orders/delete",
+  "/shopping/customers/list",
+  "/shopping/customers/delete",
   "/shopping/products/list",
   "/shopping/products/delete",
   "/shopping/product_types/list",
@@ -9,6 +13,10 @@ const GET_API = [
   "/shopping/product_brands/delete"
 ];
 const POST_API = [
+  "/shopping/orders/create",
+  "/shopping/orders/update",
+  "/shopping/customers/create",
+  "/shopping/customers/update",
   "/shopping/products/create",
   "/shopping/products/update",
   "/shopping/product_types/create",
