@@ -32,3 +32,19 @@ export function deleteProduct(query) {
     params: query
   });
 }
+
+export function fetchProductKV(query) {
+  return request({
+    url: `${URL_PREFIX}/kv`,
+    method: "get",
+    params: query
+  });
+}
+
+export function searchProduct(query) {
+  return request({
+    url: `${URL_PREFIX}/search`,
+    method: "get",
+    params: query
+  });
+}

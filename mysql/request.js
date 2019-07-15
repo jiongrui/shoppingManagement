@@ -12,7 +12,6 @@ exports.mongodbDealData = function(req, res) {
     function(err, db) {
       if (err) throw err;
       const dbo = db.db("shopping");
-      console.log("shopping reate success");
       dealQuery(req, res, dbo, db);
     }
   );
@@ -65,7 +64,6 @@ function dealQuery(req, res, dbo, db) {
         skip = (page - 1) * limit;
       }
 
-      console.log(tableName, where, sort, skip, limit);
       dbo
         .collection(tableName)
         .find(where)
@@ -74,6 +72,7 @@ function dealQuery(req, res, dbo, db) {
           console.log("count results", results);
           count = results;
         });
+
       dbo
         .collection(tableName)
         .find(where)
@@ -100,6 +99,35 @@ function dealQuery(req, res, dbo, db) {
         _id: ObjectId(query._id)
       };
       dbo.collection(tableName).deleteOne(where, dealResult);
+    },
+    kv: function() {
+      let keys = Object.keys(query);
+      let project = {};
+      if (keys.length) {
+        keys.forEach(key => {
+          project[key] = 1;
+        });
+      } else {
+        project.name = 1;
+      }
+
+      dbo
+        .collection(tableName)
+        .find()
+        .project(project)
+        .toArray(dealResult);
+    },
+    search: function() {
+      let project = { name: 1 };
+      const where = {
+        name: new RegExp(query.name)
+      };
+
+      dbo
+        .collection(tableName)
+        .find(where)
+        .project(project)
+        .toArray(dealResult);
     }
   };
   const dealResult = (err, results) => {
@@ -109,7 +137,8 @@ function dealQuery(req, res, dbo, db) {
       msg: "ok",
       code: 0
     };
-    if (operate === "list") {
+    const list = ["list", "kv", "search"];
+    if (list.includes(operate)) {
       result.data = results;
       result.total = count;
     }

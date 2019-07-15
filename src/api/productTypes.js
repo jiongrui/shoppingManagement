@@ -32,3 +32,11 @@ export function deleteProductType(query) {
     params: query
   });
 }
+
+export function fetchProductTypeKV(query) {
+  return request({
+    url: `${URL_PREFIX}/kv`,
+    method: "get",
+    params: query
+  });
+}

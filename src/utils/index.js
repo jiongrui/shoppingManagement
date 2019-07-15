@@ -136,11 +136,11 @@ export function param2Obj(url) {
   }
   return JSON.parse(
     '{"' +
-    decodeURIComponent(search)
-    .replace(/"/g, '\\"')
-    .replace(/&/g, '","')
-    .replace(/=/g, '":"') +
-    '"}'
+      decodeURIComponent(search)
+        .replace(/"/g, '\\"')
+        .replace(/&/g, '","')
+        .replace(/=/g, '":"') +
+      '"}'
   );
 }
 
@@ -187,7 +187,8 @@ export function toggleClass(element, className) {
   element.className = classString;
 }
 
-export const pickerOptions = [{
+export const pickerOptions = [
+  {
     text: "今天",
     onClick(picker) {
       const end = new Date();
@@ -236,7 +237,7 @@ export function getTime(type) {
 export function debounce(func, wait, immediate) {
   let timeout, args, context, timestamp, result;
 
-  const later = function () {
+  const later = function() {
     // 据上一次触发时间间隔
     const last = +new Date() - timestamp;
 
@@ -253,7 +254,7 @@ export function debounce(func, wait, immediate) {
     }
   };
 
-  return function (...args) {
+  return function(...args) {
     context = this;
     timestamp = +new Date();
     const callNow = immediate && !timeout;
@@ -305,8 +306,13 @@ export function transformArrayToObject(options) {
   }, {});
 }
 
-
-export const currencyList = [{
-  HKB: "港币",
-  RMB: "人民币",
-}]
+export const currencyList = [
+  {
+    key: "RMB",
+    value: "人民币"
+  },
+  {
+    key: "HKB",
+    value: "港币"
+  }
+];

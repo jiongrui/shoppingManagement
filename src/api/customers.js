@@ -32,3 +32,19 @@ export function deleteCustomer(query) {
     params: query
   });
 }
+
+export function fetchCustomerKV(query) {
+  return request({
+    url: `${URL_PREFIX}/kv`,
+    method: "get",
+    params: query
+  });
+}
+
+export function searchCustomer(query) {
+  return request({
+    url: `${URL_PREFIX}/search`,
+    method: "get",
+    params: query
+  });
+}

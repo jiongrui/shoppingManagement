@@ -32,3 +32,11 @@ export function deleteProductBrand(query) {
     params: query
   });
 }
+
+export function fetchProductBrandKV(query) {
+  return request({
+    url: `${URL_PREFIX}/kv`,
+    method: "get",
+    params: query
+  });
+}

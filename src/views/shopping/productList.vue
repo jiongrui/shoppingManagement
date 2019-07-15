@@ -1,12 +1,19 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input
-        :placeholder="$t('table.name')"
-        v-model="listQuery.name"
+      <el-autocomplete
         style="width: 200px;"
         class="filter-item"
-      />
+        v-model="listQuery.name"
+        :fetch-suggestions="querySearch"
+        :placeholder="$t('table.name')"
+        :trigger-on-focus="false"
+        @select="handleSelect"
+      >
+        <template slot-scope="{ item }">
+          <span>{{ item.name }}</span>
+        </template>
+      </el-autocomplete>
 
       <el-select
         v-model="listQuery.brandId"
@@ -224,11 +231,12 @@ import {
   fetchProductList,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  searchProduct
 } from "@/api/products";
-import { fetchProductTypeList } from "@/api/productTypes";
-import { fetchProductSpecList } from "@/api/productSpecs";
-import { fetchProductBrandList } from "@/api/productBrands";
+import { fetchProductTypeKV } from "@/api/productTypes";
+import { fetchProductSpecKV } from "@/api/productSpecs";
+import { fetchProductBrandKV } from "@/api/productBrands";
 import waves from "@/directive/waves"; // Waves directive
 import { parseTime, transformArrayToObject } from "@/utils";
 import Pagination from "@/components/Pagination"; // Secondary package based on el-pagination
@@ -311,25 +319,35 @@ export default {
       });
     },
     getProductTypeList() {
-      fetchProductTypeList().then(res => {
+      fetchProductTypeKV().then(res => {
         const data = res.data.data;
         this.typeList = data;
         this.typeObj = transformArrayToObject(data);
       });
     },
     getProductSpecList() {
-      fetchProductSpecList().then(res => {
+      fetchProductSpecKV().then(res => {
         const data = res.data.data;
         this.specList = data;
         this.specObj = transformArrayToObject(data);
       });
     },
     getProductBrandList() {
-      fetchProductBrandList().then(res => {
+      fetchProductBrandKV().then(res => {
         const data = res.data.data;
         this.brandList = data;
         this.brandObj = transformArrayToObject(data);
       });
+    },
+    querySearch(query, cb) {
+      console.log("query", query);
+      searchProduct({ name: query }).then(res => {
+        cb(res.data.data);
+      });
+    },
+    handleSelect(item) {
+      this.listQuery.name = item.name;
+      console.log("handleSelect", item);
     },
     sortChange(data) {
       const { prop, order } = data;

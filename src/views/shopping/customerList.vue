@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-        :placeholder="$t('customer.name')"
+        :placeholder="$t('table.customerName')"
         v-model="listQuery.name"
         style="width: 200px;"
         class="filter-item"
@@ -45,7 +45,7 @@
           <span>{{ scope.row._id }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('customer.name')" width="120">
+      <el-table-column :label="$t('table.customerName')" width="120">
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
         </template>
@@ -115,7 +115,7 @@
         label-width="100px"
         style="width: 400px; margin-left:50px;"
       >
-        <el-form-item :label="$t('customer.name')" prop="name">
+        <el-form-item :label="$t('table.customerName')" prop="name">
           <el-input v-model="temp.name" />
         </el-form-item>
         <el-form-item :label="$t('table.phone')" prop="phone">

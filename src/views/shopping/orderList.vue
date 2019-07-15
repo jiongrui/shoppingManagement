@@ -1,31 +1,40 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input
-        :placeholder="$t('table.name')"
-        v-model="listQuery.name"
+      <el-autocomplete
+        :placeholder="$t('table.customerName')"
+        v-model="listQuery.customerName"
         style="width: 200px;"
         class="filter-item"
-      />
+        :fetch-suggestions="querySearchCustomer"
+        :trigger-on-focus="false"
+        @select="handleSelectCustomer"
+      >
+        <template slot-scope="{ item }">
+          <span>{{ item.name }}</span>
+        </template>
+      </el-autocomplete>
+      <el-autocomplete
+        :placeholder="$t('table.productName')"
+        v-model="listQuery.productName"
+        style="width: 200px;"
+        class="filter-item"
+        :fetch-suggestions="querySearchProduct"
+        :trigger-on-focus="false"
+        @select="handleSelectProduct"
+      >
+        <template slot-scope="{ item }">
+          <span>{{ item.name }}</span>
+        </template>
+      </el-autocomplete>
 
-      <el-select
-        v-model="listQuery.brandId"
-        :placeholder="$t('table.brand')"
-        clearable
+      <el-date-picker
         class="filter-item"
-        style="width: 200px"
-      >
-        <el-option v-for="item in brandList" :key="item._id" :label="item.name" :value="item._id" />
-      </el-select>
-      <el-select
-        v-model="listQuery.specId"
-        :placeholder="$t('table.spec')"
-        clearable
-        style="width: 200px"
-        class="filter-item"
-      >
-        <el-option v-for="item in specList" :key="item._id" :label="item.name" :value="item._id" />
-      </el-select>
+        v-model="listQuery.shoppingDate"
+        type="date"
+        value-format="yyyy-MM-dd"
+        :placeholder="$t('table.shoppingDate')"
+      ></el-date-picker>
 
       <el-button
         v-waves
@@ -57,14 +66,14 @@
           <span>{{ scope.row._id }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('product.name')">
+      <el-table-column :label="$t('table.productName')">
         <template slot-scope="scope">
           <span>{{ scope.row.productName }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('customer.name')">
+      <el-table-column :label="$t('table.customerName')">
         <template slot-scope="scope">
-          <span>{{ specObj[scope.row.customerName] }}</span>
+          <span>{{ scope.row.customerName }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('table.buyIn')">
@@ -88,13 +97,13 @@
         </template>
       </el-table-column>
       <el-table-column
-        :label="$t('table.updateDate')"
+        :label="$t('table.shoppingDate')"
         align="center"
         sortable="custom"
-        prop="updateDate"
+        prop="shoppingDate"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.updateDate| parseTime() }}</span>
+          <span>{{ scope.row.shoppingDate| parseTime() }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -135,7 +144,11 @@
         label-width="100px"
         style="width: 400px; margin-left:50px;"
       >
-        <el-form-item :label="$t('product.name')" prop="productId">
+        <el-form-item :label="$t('table.shoppingDate')" prop="shoppingDate">
+          <el-date-picker v-model="temp.shoppingDate" type="date"></el-date-picker>
+        </el-form-item>
+
+        <el-form-item :label="$t('table.productName')" prop="productId">
           <el-select v-model="temp.productId" class="filter-item" clearable>
             <el-option
               v-for="item in productList"
@@ -145,7 +158,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('customer.name')" prop="customerId">
+        <el-form-item :label="$t('table.customerName')" prop="customerId">
           <el-select v-model="temp.customerId" clearable class="filter-item">
             <el-option
               v-for="item in customerList"
@@ -157,33 +170,33 @@
         </el-form-item>
 
         <el-form-item :label="$t('table.buyIn')" prop="buyIn">
-          <el-input v-model="temp.buyIn" />
+          <el-input v-model="temp.buyIn" type="number" />
         </el-form-item>
-        <el-form-item :label="$t('table.currency')" prop="buyInCurrency">
+        <el-form-item :label="$t('table.buyInCurrency')" prop="buyInCurrency">
           <el-select v-model="temp.buyInCurrency" clearable class="filter-item">
             <el-option
               v-for="item in currencyList"
-              :key="item._id"
-              :label="item.name"
-              :value="item._id"
+              :key="item.key"
+              :label="item.value"
+              :value="item.key"
             />
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('table.sellOut')" prop="sellOut">
-          <el-input v-model="temp.sellOut" />
+          <el-input v-model="temp.sellOut" type="number" />
         </el-form-item>
-        <el-form-item :label="$t('table.currency')" prop="sellOutCurrency">
+        <el-form-item :label="$t('table.sellOutCurrency')" prop="sellOutCurrency">
           <el-select v-model="temp.sellOutCurrency" clearable class="filter-item">
             <el-option
               v-for="item in currencyList"
-              :key="item._id"
-              :label="item.name"
-              :value="item._id"
+              :key="item.key"
+              :label="item.value"
+              :value="item.key"
             />
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('table.exchangeRate')" prop="exchangeRate">
-          <el-input v-model="temp.exchangeRate" />
+          <el-input v-model="temp.exchangeRate" type="number" />
         </el-form-item>
         <el-form-item :label="$t('table.quantity')" prop="quantity">
           <el-input v-model="temp.quantity" type="number" :min="1" />
@@ -216,11 +229,11 @@ import {
   updateOrder,
   deleteOrder
 } from "@/api/orders";
-import { fetchProductList } from "@/api/products";
-import { fetchCustomerList } from "@/api/customers";
-import { fetchProductTypeList } from "@/api/productTypes";
-import { fetchProductSpecList } from "@/api/productSpecs";
-import { fetchProductBrandList } from "@/api/productBrands";
+import { fetchProductKV, searchProduct } from "@/api/products";
+import { fetchCustomerKV, searchCustomer } from "@/api/customers";
+import { fetchProductTypeKV } from "@/api/productTypes";
+import { fetchProductSpecKV } from "@/api/productSpecs";
+import { fetchProductBrandKV } from "@/api/productBrands";
 import waves from "@/directive/waves"; // Waves directive
 import { parseTime, transformArrayToObject, currencyList } from "@/utils";
 import Pagination from "@/components/Pagination"; // Secondary package based on el-pagination
@@ -238,10 +251,10 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        customerId: undefined,
-        productId: undefined,
-        createDate: undefined,
-        sort: "-updateDate"
+        customerName: undefined,
+        productName: undefined,
+        shoppingDate: undefined,
+        sort: "-shoppingDate"
       },
       currencyList,
       productList: [],
@@ -262,31 +275,70 @@ export default {
         create: "table.create"
       },
       rules: {
-        typeId: [
+        productId: [
           {
-            type: "string",
             required: true,
-            message: "type is required",
+            message: "product is required",
             trigger: "change"
           }
         ],
-        specId: [
+        customerId: [
           {
-            type: "string",
             required: true,
-            message: "spec is required",
+            message: "customer is required",
             trigger: "change"
           }
         ],
-        brandId: [
+        buyIn: [
           {
-            type: "string",
             required: true,
-            message: "brand is required",
+            message: "sellOut is required",
+            trigger: "blur"
+          }
+        ],
+        buyInCurrency: [
+          {
+            required: true,
+            message: "buyInCurrency is required",
             trigger: "change"
           }
         ],
-        name: [{ required: true, message: "name is required", trigger: "blur" }]
+        sellOut: [
+          {
+            required: true,
+            message: "sellOut is required",
+            trigger: "blur"
+          }
+        ],
+        sellOutCurrency: [
+          {
+            required: true,
+            message: "sellOutCurrency is required",
+            trigger: "change"
+          }
+        ],
+        exchangeRate: [
+          {
+            required: true,
+            message: "exchangeRate is required",
+            trigger: "blur"
+          }
+        ],
+        quantity: [
+          {
+            required: true,
+            message: "quantity is required",
+            trigger: "blur"
+          }
+        ],
+        shoppingDate: [
+          {
+            type: "date",
+            required: true,
+            message: "shoppingDate is required",
+            trigger: "change"
+          }
+        ]
       }
     };
   },
@@ -308,39 +360,59 @@ export default {
       });
     },
     getProductList() {
-      fetchProductList().then(res => {
+      fetchProductKV().then(res => {
         const data = res.data.data;
         this.productList = data;
         this.productObj = transformArrayToObject(data);
       });
     },
     getCustomerList() {
-      fetchCustomerList().then(res => {
+      fetchCustomerKV().then(res => {
         const data = res.data.data;
         this.customerList = data;
         this.customerObj = transformArrayToObject(data);
       });
     },
     getProductTypeList() {
-      fetchProductTypeList().then(res => {
+      fetchProductTypeKV().then(res => {
         const data = res.data.data;
         this.typeList = data;
         this.typeObj = transformArrayToObject(data);
       });
     },
     getProductSpecList() {
-      fetchProductSpecList().then(res => {
+      fetchProductSpecKV().then(res => {
         const data = res.data.data;
         this.specList = data;
         this.specObj = transformArrayToObject(data);
       });
     },
     getProductBrandList() {
-      fetchProductBrandList().then(res => {
+      fetchProductBrandKV().then(res => {
         const data = res.data.data;
         this.brandList = data;
         this.brandObj = transformArrayToObject(data);
       });
+    },
+    querySearchProduct(query, cb) {
+      console.log("querySearchProduct query", query);
+      searchProduct({ name: query }).then(res => {
+        cb(res.data.data);
+      });
+    },
+    querySearchCustomer(query, cb) {
+      console.log("querySearchCustomer query", query);
+      searchCustomer({ name: query }).then(res => {
+        cb(res.data.data);
+      });
+    },
+    handleSelectProduct(item) {
+      this.listQuery.productName = item.name;
+      console.log("handleSelectProduct", item);
+    },
+    handleSelectCustomer(item) {
+      this.listQuery.customerName = item.name;
+      console.log("handleSelectProduct", item);
     },
     sortChange(data) {
       const { prop, order } = data;
@@ -349,12 +421,18 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        star: 1,
+        productId: "",
+        productName: "",
+        customerId: "",
+        customerName: "",
+        buyIn: "",
+        buyInCurrency: "",
+        sellOut: "",
+        sellOutCurrency: "",
+        exchangeRate: "",
+        quantity: "",
         remarks: "",
-        name: "",
-        typeId: "",
-        specId: "",
-        brandId: "",
+        shoppingDate: "",
         updateDate: new Date(),
         createDate: new Date()
       };
@@ -370,6 +448,8 @@ export default {
     createData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.temp.productName = this.productObj[this.temp.productId];
+          this.temp.customerName = this.customerObj[this.temp.customerId];
           createOrder(this.temp).then(() => {
             this.dialogFormVisible = false;
             this.$message({
@@ -382,9 +462,10 @@ export default {
       });
     },
     handleUpdate(row) {
-      this.temp = Object.assign({}, row); // copy obj
+      const temp = Object.assign({}, row); // copy obj
+      temp.shoppingDate = new Date(temp.shoppingDate);
+      this.temp = temp;
       delete this.temp.createDate;
-      delete this.temp.volume;
       this.dialogStatus = "update";
       this.dialogFormVisible = true;
       this.$nextTick(() => {
@@ -394,6 +475,8 @@ export default {
     updateData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.temp.productName = this.productObj[this.temp.productId];
+          this.temp.customerName = this.customerObj[this.temp.customerId];
           updateOrder(this.temp).then(() => {
             this.dialogFormVisible = false;
             this.$message({
@@ -410,22 +493,21 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      })
-        .then(() => {
-          deleteOrder({ _id: row._id }).then(res => {
-            this.$message({
-              type: "success",
-              message: "删除成功"
-            });
-            this.getList();
-          });
-        })
-        .catch(() => {
+      }).then(() => {
+        deleteOrder({ _id: row._id }).then(res => {
           this.$message({
-            type: "info",
-            message: "已取消删除"
+            type: "success",
+            message: "删除成功"
           });
+          this.getList();
         });
+      });
+      // .catch(() => {
+      //   this.$message({
+      //     type: "info",
+      //     message: "已取消删除"
+      //   });
+      // });
     }
   }
 };

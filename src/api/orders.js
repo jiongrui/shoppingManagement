@@ -32,3 +32,11 @@ export function deleteOrder(query) {
     params: query
   });
 }
+
+export function searchOrder(query) {
+  return request({
+    url: `${URL_PREFIX}/search`,
+    method: "get",
+    params: query
+  });
+}

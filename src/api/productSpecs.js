@@ -32,3 +32,11 @@ export function deleteProductSpec(query) {
     params: query
   });
 }
+
+export function fetchProductSpecKV(query) {
+  return request({
+    url: `${URL_PREFIX}/kv`,
+    method: "get",
+    params: query
+  });
+}
