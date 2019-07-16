@@ -1,15 +1,17 @@
 const mysql = require("mysql");
-const { MongoClient, ObjectId } = require("mongodb");
+const {
+  MongoClient,
+  ObjectId
+} = require("mongodb");
 const getQuery = require("./query");
 const mongodbUrl = "mongodb://localhost:27017/";
 
-exports.mongodbDealData = function(req, res) {
+exports.mongodbDealData = function (req, res) {
   MongoClient.connect(
-    mongodbUrl,
-    {
+    mongodbUrl, {
       useNewUrlParser: true
     },
-    function(err, db) {
+    function (err, db) {
       if (err) throw err;
       const dbo = db.db("shopping");
       dealQuery(req, res, dbo, db);
@@ -28,7 +30,7 @@ function dealQuery(req, res, dbo, db) {
   let count;
 
   const operations = {
-    list: function() {
+    list: function () {
       const keys = Object.keys(query);
       const len = keys.length;
       const sortTypes = {
@@ -57,7 +59,7 @@ function dealQuery(req, res, dbo, db) {
           limit = +value;
           continue;
         }
-        where[key] = value;
+        where[key] = new RegExp(value);
       }
 
       if (page && limit) {
@@ -67,7 +69,7 @@ function dealQuery(req, res, dbo, db) {
       dbo
         .collection(tableName)
         .find(where)
-        .count(function(err, results) {
+        .count(function (err, results) {
           if (err) throw err;
           console.log("count results", results);
           count = results;
@@ -81,10 +83,10 @@ function dealQuery(req, res, dbo, db) {
         .limit(limit)
         .toArray(dealResult);
     },
-    create: function() {
+    create: function () {
       dbo.collection(tableName).insertOne(query, dealResult);
     },
-    update: function() {
+    update: function () {
       const where = {
         _id: ObjectId(query._id)
       };
@@ -94,13 +96,13 @@ function dealQuery(req, res, dbo, db) {
       };
       dbo.collection(tableName).updateOne(where, update, dealResult);
     },
-    delete: function() {
+    delete: function () {
       const where = {
         _id: ObjectId(query._id)
       };
       dbo.collection(tableName).deleteOne(where, dealResult);
     },
-    kv: function() {
+    kv: function () {
       let keys = Object.keys(query);
       let project = {};
       if (keys.length) {
@@ -117,8 +119,10 @@ function dealQuery(req, res, dbo, db) {
         .project(project)
         .toArray(dealResult);
     },
-    search: function() {
-      let project = { name: 1 };
+    search: function () {
+      let project = {
+        name: 1
+      };
       const where = {
         name: new RegExp(query.name)
       };
@@ -149,7 +153,7 @@ function dealQuery(req, res, dbo, db) {
   operations[operate]();
 }
 
-exports.mysqlDealData = function(req, res) {
+exports.mysqlDealData = function (req, res) {
   // console.log("req....", req);
   // console.log("res", res);
 
@@ -198,7 +202,7 @@ exports.mysqlDealData = function(req, res) {
   // ('what',1,50,2,6),('what2',1,70,2,5),('haha',1,50,4,2),('niu',1,50,3,3),('shadx',1,90,2,1)`;
   const query = getQuery(req);
   // console.log("query", query);
-  connection.query(query, function(error, results, fields) {
+  connection.query(query, function (error, results, fields) {
     // console.log("req.....", req);
     // console.log("res.....", res);
     if (error) throw error;

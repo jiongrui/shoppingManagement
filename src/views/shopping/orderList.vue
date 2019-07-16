@@ -41,7 +41,7 @@
         class="filter-item"
         type="primary"
         icon="el-icon-search"
-        @click="getList"
+        @click="handleSearch"
       >{{ $t('table.search') }}</el-button>
       <el-button
         class="filter-item"
@@ -103,7 +103,7 @@
         prop="shoppingDate"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.shoppingDate| parseTime() }}</span>
+          <span>{{ scope.row.shoppingDate| parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -207,7 +207,7 @@
             :autosize="{ minRows: 2, maxRows: 4}"
             v-model="temp.remarks"
             type="textarea"
-            placeholder="Please input"
+            placeholder="remarks"
           />
         </el-form-item>
       </el-form>
@@ -395,24 +395,28 @@ export default {
       });
     },
     querySearchProduct(query, cb) {
-      console.log("querySearchProduct query", query);
+      // console.log("querySearchProduct query", query);
       searchProduct({ name: query }).then(res => {
         cb(res.data.data);
       });
     },
     querySearchCustomer(query, cb) {
-      console.log("querySearchCustomer query", query);
+      // console.log("querySearchCustomer query", query);
       searchCustomer({ name: query }).then(res => {
         cb(res.data.data);
       });
     },
     handleSelectProduct(item) {
       this.listQuery.productName = item.name;
-      console.log("handleSelectProduct", item);
+      // console.log("handleSelectProduct", item);
     },
     handleSelectCustomer(item) {
       this.listQuery.customerName = item.name;
-      console.log("handleSelectProduct", item);
+      // console.log("handleSelectProduct", item);
+    },
+    handleSearch() {
+      this.temp.page = 1;
+      this.getList();
     },
     sortChange(data) {
       const { prop, order } = data;

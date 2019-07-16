@@ -57,7 +57,7 @@
         class="filter-item"
         type="primary"
         icon="el-icon-search"
-        @click="getList"
+        @click="handleSearch"
       >{{ $t('table.search') }}</el-button>
       <el-button
         class="filter-item"
@@ -340,14 +340,18 @@ export default {
       });
     },
     querySearch(query, cb) {
-      console.log("query", query);
+      // console.log("query", query);
       searchProduct({ name: query }).then(res => {
         cb(res.data.data);
       });
     },
     handleSelect(item) {
       this.listQuery.name = item.name;
-      console.log("handleSelect", item);
+      // console.log("handleSelect", item);
+    },
+    handleSearch() {
+      this.temp.page = 1;
+      this.getList();
     },
     sortChange(data) {
       const { prop, order } = data;
