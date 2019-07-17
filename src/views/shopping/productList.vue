@@ -303,7 +303,7 @@ export default {
       }
     };
   },
-  created() {
+  mounted() {
     this.getProductTypeList();
     this.getProductSpecList();
     this.getProductBrandList();
@@ -366,6 +366,7 @@ export default {
         typeId: "",
         specId: "",
         brandId: "",
+        volume: 0,
         updateDate: new Date(),
         createDate: new Date()
       };

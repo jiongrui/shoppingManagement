@@ -31,6 +31,10 @@ function dealQuery(req, res, dbo, db) {
 
   const operations = {
     list: function () {
+      if (tableName === "products") {
+        queryProducts();
+        return false;
+      }
       const keys = Object.keys(query);
       const len = keys.length;
       const sortTypes = {
@@ -59,6 +63,7 @@ function dealQuery(req, res, dbo, db) {
           limit = +value;
           continue;
         }
+        // where[key] = value;
         where[key] = new RegExp(value);
       }
 
@@ -84,6 +89,14 @@ function dealQuery(req, res, dbo, db) {
         .toArray(dealResult);
     },
     create: function () {
+      // if(tableName === 'orders'){
+      //   const where = {
+      //     _id: ObjectId(query._id)
+      //   };
+      //   dbo.collection(tableName).find({where}).toArray(function(result){
+      //     dbo.collection(tableName).
+      //   })
+      // }
       dbo.collection(tableName).insertOne(query, dealResult);
     },
     update: function () {
@@ -149,6 +162,53 @@ function dealQuery(req, res, dbo, db) {
     res.json(result);
     db.close();
   };
+
+  const queryProducts = () => {
+    dbo.collection(tableName).aggregate([{
+      $lookup: {
+        from: "orders",
+        localField: "_id",
+        foreignField: "productId",
+        as: "orders"
+      },
+    }, {
+      $unwind: { // 拆分子数组
+        path: "$orders",
+        preserveNullAndEmptyArrays: true // 空的数组也拆分
+      }
+    }, { // 分组求和并返回
+      $group: { // 分组查询
+        _id: "$_id",
+        name: {
+          $first: "$name"
+        },
+        star: {
+          $first: "$star"
+        },
+        typeId: {
+          $first: "$typeId"
+        },
+        specId: {
+          $first: "$specId"
+        },
+        brandId: {
+          $first: "$brandId"
+        },
+        updateDate: {
+          $first: "$updateDate"
+        },
+        createDate: {
+          $first: "$createDate"
+        },
+        remarks: {
+          $first: "$remarks"
+        },
+        volume: {
+          $sum: "$orders.quantity"
+        }
+      }
+    }]).toArray(dealResult);
+  }
 
   operations[operate]();
 }
