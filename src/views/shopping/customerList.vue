@@ -214,7 +214,6 @@ export default {
         name: "",
         phone: "",
         address: "",
-        integral: 0,
         updateDate: new Date(),
         createDate: new Date()
       };
@@ -252,7 +251,7 @@ export default {
     updateData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
-          delete this.temp.integral;
+          this.temp.updateDate = new Date();
           updateCustomer(this.temp).then(() => {
             this.dialogFormVisible = false;
             this.$message({

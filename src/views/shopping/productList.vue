@@ -366,7 +366,6 @@ export default {
         typeId: "",
         specId: "",
         brandId: "",
-        volume: 0,
         updateDate: new Date(),
         createDate: new Date()
       };
@@ -395,8 +394,6 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row); // copy obj
-      delete this.temp.createDate;
-      delete this.temp.volume;
       this.dialogStatus = "update";
       this.dialogFormVisible = true;
       this.$nextTick(() => {

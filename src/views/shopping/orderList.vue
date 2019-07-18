@@ -569,6 +569,7 @@ export default {
     updateData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.temp.updateDate = new Date();
           this.temp.productName = this.productObj[this.temp.productId];
           this.temp.customerName = this.customerObj[this.temp.customerId];
           updateOrder(this.temp).then(() => {

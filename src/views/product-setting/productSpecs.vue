@@ -205,7 +205,6 @@ export default {
     updateData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
-          delete this.temp.createDate;
           this.temp.updateDate = new Date();
           updateProductSpec(this.temp).then(() => {
             this.dialogFormVisible = false;
