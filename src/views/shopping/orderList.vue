@@ -155,7 +155,7 @@
         ref="dataForm"
         :rules="rules"
         :model="temp"
-        label-width="100px"
+        label-width="140px"
         style="width: 400px; margin-left:50px;"
       >
         <el-form-item :label="$t('table.shoppingDate')" prop="shoppingDate">
@@ -166,7 +166,7 @@
             value-format="yyyy-MM-dd"
           ></el-date-picker>
         </el-form-item>
-        <el-form-item :label="$t('table.productName')" prop="productName">
+        <el-form-item :label="$t('table.productName')" prop="productId">
           <!-- <el-autocomplete
             :placeholder="$t('table.productName')"
             v-model="temp.productName"
@@ -189,7 +189,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('table.customerName')" prop="customerName">
+        <el-form-item :label="$t('table.customerName')" prop="customerId">
           <!-- <el-autocomplete
             :placeholder="$t('table.customerName')"
             v-model="temp.customerName"
@@ -214,7 +214,7 @@
         </el-form-item>
 
         <el-form-item :label="$t('table.buyIn')" prop="buyIn">
-          <el-input style="width: 200px;" v-model="temp.buyIn" type="number" />
+          <el-input style="width: 200px;" v-model.number="temp.buyIn" type="number" :min="0" />
         </el-form-item>
         <el-form-item :label="$t('table.buyInCurrency')" prop="buyInCurrency">
           <el-select v-model="temp.buyInCurrency" clearable class="filter-item">
@@ -227,7 +227,7 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('table.sellOut')" prop="sellOut">
-          <el-input style="width: 200px;" v-model="temp.sellOut" type="number" />
+          <el-input style="width: 200px;" v-model.number="temp.sellOut" type="number" :min="0" />
         </el-form-item>
         <el-form-item :label="$t('table.sellOutCurrency')" prop="sellOutCurrency">
           <el-select v-model="temp.sellOutCurrency" clearable class="filter-item">
@@ -240,10 +240,15 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('table.exchangeRate')" prop="exchangeRate">
-          <el-input style="width: 200px;" v-model="temp.exchangeRate" type="number" />
+          <el-input
+            style="width: 200px;"
+            v-model.number="temp.exchangeRate"
+            type="number"
+            :min="0"
+          />
         </el-form-item>
         <el-form-item :label="$t('table.quantity')" prop="quantity">
-          <el-input style="width: 200px;" v-model="temp.quantity" type="number" :min="1" />
+          <el-input style="width: 200px;" v-model.number="temp.quantity" type="number" :min="1" />
         </el-form-item>
 
         <el-form-item :label="$t('table.remarks')">
@@ -333,7 +338,12 @@ export default {
         buyIn: [
           {
             required: true,
-            message: "sellOut is required",
+            message: "买入价不能为空",
+            trigger: "blur"
+          },
+          {
+            type: "number",
+            message: "买入价必须是number",
             trigger: "blur"
           }
         ],
@@ -347,7 +357,12 @@ export default {
         sellOut: [
           {
             required: true,
-            message: "sellOut is required",
+            message: "卖出价不能为空",
+            trigger: "blur"
+          },
+          {
+            type: "number",
+            message: "卖出价必须是number",
             trigger: "blur"
           }
         ],
@@ -361,14 +376,24 @@ export default {
         exchangeRate: [
           {
             required: true,
-            message: "exchangeRate is required",
+            message: "汇率不能为空",
+            trigger: "blur"
+          },
+          {
+            type: "number",
+            message: "汇率必须是number",
             trigger: "blur"
           }
         ],
         quantity: [
           {
             required: true,
-            message: "quantity is required",
+            message: "数量不能为空",
+            trigger: "blur"
+          },
+          {
+            type: "number",
+            message: "数量必须是number",
             trigger: "blur"
           }
         ],
@@ -386,6 +411,33 @@ export default {
     this.getProductList();
     this.getCustomerList();
     this.getList();
+
+    // db.products.aggregate([
+    //     {
+    //       $lookup: {
+    //         from: "orders",
+    //         localField: "_id",
+    //         foreignField: "productId",
+    //         as: "orders"
+    //       }
+    //     },
+    //     {
+    //       $unwind: {
+    //         path: "$orders",
+    //         preserveNullAndEmptyArrays: true
+    //       }
+    //     },
+    //     {
+    //       $group: {
+    //         _id: "$_id",
+    //         name: {
+    //           $first: "$name"
+    //         },
+    //         volume: {
+    //           $sum: "$orders.quantity"
+    //         }
+    //       }
+    //     }])
   },
   methods: {
     getList() {

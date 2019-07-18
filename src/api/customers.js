@@ -13,7 +13,7 @@ export function createCustomer(query) {
   return request({
     url: `${URL_PREFIX}/create`,
     method: "post",
-    params: query
+    data: query
   });
 }
 
@@ -21,7 +21,7 @@ export function updateCustomer(query) {
   return request({
     url: `${URL_PREFIX}/update`,
     method: "post",
-    params: query
+    data: query
   });
 }
 

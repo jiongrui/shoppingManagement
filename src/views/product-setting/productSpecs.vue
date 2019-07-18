@@ -196,7 +196,6 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row); // copy obj
-      delete this.temp.createDate;
       this.dialogStatus = "update";
       this.dialogFormVisible = true;
       this.$nextTick(() => {
@@ -206,6 +205,8 @@ export default {
     updateData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          delete this.temp.createDate;
+          this.temp.updateDate = new Date();
           updateProductSpec(this.temp).then(() => {
             this.dialogFormVisible = false;
             this.$message({

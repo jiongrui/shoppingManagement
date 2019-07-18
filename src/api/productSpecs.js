@@ -10,10 +10,11 @@ export function fetchProductSpecList(query) {
 }
 
 export function createProductSpec(query) {
+  console.log("query", query);
   return request({
     url: `${URL_PREFIX}/create`,
     method: "post",
-    params: query
+    data: query
   });
 }
 
@@ -21,7 +22,7 @@ export function updateProductSpec(query) {
   return request({
     url: `${URL_PREFIX}/update`,
     method: "post",
-    params: query
+    data: query
   });
 }
 

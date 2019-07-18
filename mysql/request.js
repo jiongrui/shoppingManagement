@@ -1,17 +1,15 @@
 const mysql = require("mysql");
-const {
-  MongoClient,
-  ObjectId
-} = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 const getQuery = require("./query");
 const mongodbUrl = "mongodb://localhost:27017/";
 
-exports.mongodbDealData = function (req, res) {
+exports.mongodbDealData = function(req, res) {
   MongoClient.connect(
-    mongodbUrl, {
+    mongodbUrl,
+    {
       useNewUrlParser: true
     },
-    function (err, db) {
+    function(err, db) {
       if (err) throw err;
       const dbo = db.db("shopping");
       dealQuery(req, res, dbo, db);
@@ -21,6 +19,7 @@ exports.mongodbDealData = function (req, res) {
 
 function dealQuery(req, res, dbo, db) {
   const query = req.query;
+  const body = req.body;
   const method = req.method;
   const url = req._parsedUrl.pathname;
   const urlList = url.split("/");
@@ -30,11 +29,7 @@ function dealQuery(req, res, dbo, db) {
   let count;
 
   const operations = {
-    list: function () {
-      if (tableName === "products") {
-        queryProducts();
-        return false;
-      }
+    list: function() {
       const keys = Object.keys(query);
       const len = keys.length;
       const sortTypes = {
@@ -74,11 +69,16 @@ function dealQuery(req, res, dbo, db) {
       dbo
         .collection(tableName)
         .find(where)
-        .count(function (err, results) {
+        .count(function(err, results) {
           if (err) throw err;
           console.log("count results", results);
           count = results;
         });
+
+      if (tableName === "products") {
+        queryProducts(where);
+        return false;
+      }
 
       dbo
         .collection(tableName)
@@ -88,34 +88,36 @@ function dealQuery(req, res, dbo, db) {
         .limit(limit)
         .toArray(dealResult);
     },
-    create: function () {
-      // if(tableName === 'orders'){
-      //   const where = {
-      //     _id: ObjectId(query._id)
-      //   };
-      //   dbo.collection(tableName).find({where}).toArray(function(result){
-      //     dbo.collection(tableName).
-      //   })
-      // }
-      dbo.collection(tableName).insertOne(query, dealResult);
+    create: function() {
+      Object.keys(body).forEach(key => {
+        if (/id/.test(key.toLowerCase())) {
+          body[key] = ObjectId(body[key]);
+        }
+      });
+      dbo.collection(tableName).insertOne(body, dealResult);
     },
-    update: function () {
+    update: function() {
       const where = {
-        _id: ObjectId(query._id)
+        _id: ObjectId(body._id)
       };
-      delete query._id;
+      delete body._id;
+      Object.keys(body).forEach(key => {
+        if (/id/.test(key.toLowerCase())) {
+          body[key] = ObjectId(body[key]);
+        }
+      });
       const update = {
-        $set: query
+        $set: body
       };
       dbo.collection(tableName).updateOne(where, update, dealResult);
     },
-    delete: function () {
+    delete: function() {
       const where = {
         _id: ObjectId(query._id)
       };
       dbo.collection(tableName).deleteOne(where, dealResult);
     },
-    kv: function () {
+    kv: function() {
       let keys = Object.keys(query);
       let project = {};
       if (keys.length) {
@@ -132,7 +134,7 @@ function dealQuery(req, res, dbo, db) {
         .project(project)
         .toArray(dealResult);
     },
-    search: function () {
+    search: function() {
       let project = {
         name: 1
       };
@@ -149,7 +151,7 @@ function dealQuery(req, res, dbo, db) {
   };
   const dealResult = (err, results) => {
     if (err) throw err;
-    console.log("The result is: ", results);
+    // console.log("The result is: ", results);
     const result = {
       msg: "ok",
       code: 0
@@ -163,57 +165,68 @@ function dealQuery(req, res, dbo, db) {
     db.close();
   };
 
-  const queryProducts = () => {
-    dbo.collection(tableName).aggregate([{
-      $lookup: {
-        from: "orders",
-        localField: "_id",
-        foreignField: "productId",
-        as: "orders"
-      },
-    }, {
-      $unwind: { // 拆分子数组
-        path: "$orders",
-        preserveNullAndEmptyArrays: true // 空的数组也拆分
-      }
-    }, { // 分组求和并返回
-      $group: { // 分组查询
-        _id: "$_id",
-        name: {
-          $first: "$name"
+  const queryProducts = where => {
+    dbo
+      .collection(tableName)
+      .aggregate([
+        { $match: where }, //查询条件
+        {
+          $lookup: {
+            from: "orders",
+            localField: "_id",
+            foreignField: "productId",
+            as: "orders"
+          }
         },
-        star: {
-          $first: "$star"
+        {
+          $unwind: {
+            // 拆分子数组
+            path: "$orders",
+            preserveNullAndEmptyArrays: true // 空的数组也拆分
+          }
         },
-        typeId: {
-          $first: "$typeId"
-        },
-        specId: {
-          $first: "$specId"
-        },
-        brandId: {
-          $first: "$brandId"
-        },
-        updateDate: {
-          $first: "$updateDate"
-        },
-        createDate: {
-          $first: "$createDate"
-        },
-        remarks: {
-          $first: "$remarks"
-        },
-        volume: {
-          $sum: "$orders.quantity"
+        {
+          // 分组求和并返回
+          $group: {
+            // 分组查询
+            _id: "$_id",
+            name: {
+              $first: "$name"
+            },
+            star: {
+              $first: "$star"
+            },
+            typeId: {
+              $first: "$typeId"
+            },
+            specId: {
+              $first: "$specId"
+            },
+            brandId: {
+              $first: "$brandId"
+            },
+            updateDate: {
+              $first: "$updateDate"
+            },
+            createDate: {
+              $first: "$createDate"
+            },
+            remarks: {
+              $first: "$remarks"
+            },
+            volume: {
+              $sum: "$orders.quantity"
+            }
+          }
         }
-      }
-    }]).toArray(dealResult);
-  }
+      ])
+      .toArray(dealResult);
+  };
 
   operations[operate]();
 }
 
-exports.mysqlDealData = function (req, res) {
+exports.mysqlDealData = function(req, res) {
   // console.log("req....", req);
   // console.log("res", res);
 
@@ -262,7 +275,7 @@ exports.mysqlDealData = function (req, res) {
   // ('what',1,50,2,6),('what2',1,70,2,5),('haha',1,50,4,2),('niu',1,50,3,3),('shadx',1,90,2,1)`;
   const query = getQuery(req);
   // console.log("query", query);
-  connection.query(query, function (error, results, fields) {
+  connection.query(query, function(error, results, fields) {
     // console.log("req.....", req);
     // console.log("res.....", res);
     if (error) throw error;

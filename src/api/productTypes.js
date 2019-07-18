@@ -13,7 +13,7 @@ export function createProductType(query) {
   return request({
     url: `${URL_PREFIX}/create`,
     method: "post",
-    params: query
+    data: query
   });
 }
 
@@ -21,7 +21,7 @@ export function updateProductType(query) {
   return request({
     url: `${URL_PREFIX}/update`,
     method: "post",
-    params: query
+    data: query
   });
 }
 
