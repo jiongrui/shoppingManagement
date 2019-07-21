@@ -1,15 +1,17 @@
 const mysql = require("mysql");
-const { MongoClient, ObjectId } = require("mongodb");
+const {
+  MongoClient,
+  ObjectId
+} = require("mongodb");
 const getQuery = require("./query");
 const mongodbUrl = "mongodb://localhost:27017/";
 
-exports.mongodbDealData = function(req, res) {
+exports.mongodbDealData = function (req, res) {
   MongoClient.connect(
-    mongodbUrl,
-    {
+    mongodbUrl, {
       useNewUrlParser: true
     },
-    function(err, db) {
+    function (err, db) {
       if (err) throw err;
       const dbo = db.db("shopping");
       dealQuery(req, res, dbo, db);
@@ -29,7 +31,7 @@ function dealQuery(req, res, dbo, db) {
   let count;
 
   const operations = {
-    list: function() {
+    list: function () {
       const keys = Object.keys(query);
       const len = keys.length;
       const sortTypes = {
@@ -69,9 +71,8 @@ function dealQuery(req, res, dbo, db) {
       dbo
         .collection(tableName)
         .find(where)
-        .count(function(err, results) {
+        .count(function (err, results) {
           if (err) throw err;
-          console.log("count results", results);
           count = results;
         });
 
@@ -79,6 +80,12 @@ function dealQuery(req, res, dbo, db) {
         queryProducts(where);
         return false;
       }
+
+      if (tableName === "customers") {
+        queryCustomers(where);
+        return false;
+      }
+
 
       dbo
         .collection(tableName)
@@ -88,36 +95,51 @@ function dealQuery(req, res, dbo, db) {
         .limit(limit)
         .toArray(dealResult);
     },
-    create: function() {
+    create: function () {
       Object.keys(body).forEach(key => {
         if (/id/.test(key.toLowerCase())) {
           body[key] = ObjectId(body[key]);
         }
       });
       dbo.collection(tableName).insertOne(body, dealResult);
+
     },
-    update: function() {
-      const where = {
-        _id: ObjectId(body._id)
-      };
-      delete body._id;
+    update: function () {
       Object.keys(body).forEach(key => {
         if (/id/.test(key.toLowerCase())) {
           body[key] = ObjectId(body[key]);
         }
       });
+      const where = {
+        _id: body._id
+      };
+      delete body._id;
       const update = {
         $set: body
       };
       dbo.collection(tableName).updateOne(where, update, dealResult);
+
+      //更新订单记录的同时，更新积分记录
+      if (tableName === "orders") {
+        updateIntegrals({
+          orderId: where._id
+        })
+      }
     },
-    delete: function() {
+    delete: function () {
       const where = {
         _id: ObjectId(query._id)
       };
       dbo.collection(tableName).deleteOne(where, dealResult);
+
+      //删除订单记录的同时，删除对应积分记录
+      if (tableName === "orders") {
+        dbo.collection("integrals").deleteOne({
+          orderId: where._id
+        }, dealResult);
+      }
     },
-    kv: function() {
+    kv: function () {
       let keys = Object.keys(query);
       let project = {};
       if (keys.length) {
@@ -134,7 +156,7 @@ function dealQuery(req, res, dbo, db) {
         .project(project)
         .toArray(dealResult);
     },
-    search: function() {
+    search: function () {
       let project = {
         name: 1
       };
@@ -162,14 +184,20 @@ function dealQuery(req, res, dbo, db) {
       result.total = count;
     }
     res.json(result);
-    db.close();
+
+    //添加订单记录的同时，增加积分记录
+    if (tableName === "orders" && operate === "create") {
+      insertIntegrals(results.orderId);
+    }
+    // db.close();
   };
 
   const queryProducts = where => {
     dbo
       .collection(tableName)
-      .aggregate([
-        { $match: where }, //查询条件
+      .aggregate([{
+          $match: where
+        }, //查询条件
         {
           $lookup: {
             from: "orders",
@@ -223,10 +251,81 @@ function dealQuery(req, res, dbo, db) {
       .toArray(dealResult);
   };
 
+  const queryCustomers = where => {
+    dbo
+      .collection(tableName)
+      .aggregate([{
+          $match: where
+        }, //查询条件
+        {
+          $lookup: {
+            from: "integrals",
+            localField: "_id",
+            foreignField: "customerId",
+            as: "integrals"
+          }
+        },
+        {
+          $unwind: {
+            // 拆分子数组
+            path: "$integrals",
+            preserveNullAndEmptyArrays: true // 空的数组也拆分
+          }
+        },
+        {
+          // 分组求和并返回
+          $group: {
+            // 分组查询
+            _id: "$_id",
+            name: {
+              $first: "$name"
+            },
+            phone: {
+              $first: "$phone"
+            },
+            address: {
+              $first: "$address"
+            },
+            updateDate: {
+              $first: "$updateDate"
+            },
+            remarks: {
+              $first: "$remarks"
+            },
+            integral: {
+              $sum: "$integrals.integral"
+            }
+          }
+        }
+      ])
+      .toArray(dealResult);
+  };
+
+  const insertIntegrals = orderId => {
+    const integral = body.sellOutCurrency === "RMB" ? body.sellOut : Math.floor(body.sellOut * body.exchangeRate);
+    const obj = {
+      customerId: body.customerId,
+      orderId,
+      integral,
+      createDate: body.createDate,
+      updateDate: body.updateDate
+    }
+    dbo.collection("integrals").insertOne(obj, dealResult);
+  }
+  const updateIntegrals = where => {
+    const integral = body.sellOutCurrency === "RMB" ? body.sellOut : Math.floor(body.sellOut * body.exchangeRate);
+    const obj = {
+      customerId: body.customerId,
+      integral,
+      updateDate: body.updateDate
+    }
+    dbo.collection("integrals").updateOne(where, obj, dealResult);
+  }
+
   operations[operate]();
 }
 
-exports.mysqlDealData = function(req, res) {
+exports.mysqlDealData = function (req, res) {
   // console.log("req....", req);
   // console.log("res", res);
 
@@ -275,7 +374,7 @@ exports.mysqlDealData = function(req, res) {
   // ('what',1,50,2,6),('what2',1,70,2,5),('haha',1,50,4,2),('niu',1,50,3,3),('shadx',1,90,2,1)`;
   const query = getQuery(req);
   // console.log("query", query);
-  connection.query(query, function(error, results, fields) {
+  connection.query(query, function (error, results, fields) {
     // console.log("req.....", req);
     // console.log("res.....", res);
     if (error) throw error;

@@ -80,27 +80,27 @@
           <span>{{ scope.row._id }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.productName')">
+      <el-table-column :label="$t('table.productName')" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.productName }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.customerName')">
+      <el-table-column :label="$t('table.customerName')" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.customerName }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.buyIn')">
+      <el-table-column :label="$t('table.buyIn')" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.buyIn }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.sellOut')">
+      <el-table-column :label="$t('table.sellOut')" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.sellOut }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.exchangeRate')">
+      <el-table-column :label="$t('table.exchangeRate')" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.exchangeRate }}</span>
         </template>
@@ -167,19 +167,6 @@
           ></el-date-picker>
         </el-form-item>
         <el-form-item :label="$t('table.productName')" prop="productId">
-          <!-- <el-autocomplete
-            :placeholder="$t('table.productName')"
-            v-model="temp.productName"
-            style="width: 200px;"
-            class="filter-item"
-            :fetch-suggestions="querySearchProduct"
-            :trigger-on-focus="false"
-            @select="handleSelectProduct"
-          >
-            <template slot-scope="{ item }">
-              <span>{{ item.name }}</span>
-            </template>
-          </el-autocomplete>-->
           <el-select v-model="temp.productId" class="filter-item" filterable clearable>
             <el-option
               v-for="item in productList"
@@ -190,19 +177,6 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('table.customerName')" prop="customerId">
-          <!-- <el-autocomplete
-            :placeholder="$t('table.customerName')"
-            v-model="temp.customerName"
-            style="width: 200px;"
-            class="filter-item"
-            :fetch-suggestions="querySearchCustomer"
-            :trigger-on-focus="false"
-            @select="handleSelectCustomer"
-          >
-            <template slot-scope="{ item }">
-              <span>{{ item.name }}</span>
-            </template>
-          </el-autocomplete>-->
           <el-select v-model="temp.customerId" clearable filterable class="filter-item">
             <el-option
               v-for="item in customerList"
@@ -411,33 +385,6 @@ export default {
     this.getProductList();
     this.getCustomerList();
     this.getList();
-
-    // db.products.aggregate([
-    //     {
-    //       $lookup: {
-    //         from: "orders",
-    //         localField: "_id",
-    //         foreignField: "productId",
-    //         as: "orders"
-    //       }
-    //     },
-    //     {
-    //       $unwind: {
-    //         path: "$orders",
-    //         preserveNullAndEmptyArrays: true
-    //       }
-    //     },
-    //     {
-    //       $group: {
-    //         _id: "$_id",
-    //         name: {
-    //           $first: "$name"
-    //         },
-    //         volume: {
-    //           $sum: "$orders.quantity"
-    //         }
-    //       }
-    //     }])
   },
   methods: {
     getList() {
@@ -463,31 +410,6 @@ export default {
         this.customerObj = transformArrayToObject(data);
       });
     },
-    // querySearchProduct(query, cb) {
-    //   // console.log("querySearchProduct query", query);
-    //   searchProduct({ name: query }).then(res => {
-    //     cb(res.data.data);
-    //   });
-    // },
-    // querySearchCustomer(query, cb) {
-    //   // console.log("querySearchCustomer query", query);
-    //   searchCustomer({ name: query }).then(res => {
-    //     cb(res.data.data);
-    //   });
-    // },
-    // handleSelectProduct(item) {
-    //   this.temp.productName = item.name;
-    //   this.temp.productId = item._id;
-    //   // console.log("handleSelectProduct", item);
-    // },
-    // handleSelectCustomer(item) {
-    //   this.temp.customerId = item._id;
-    //   this.temp.customerName = item.name;
-    //   // console.log("handleSelectProduct", item);
-    // },
-    // handleChangeProduct(val) {
-    //   console.log("handleChangeProduct", val);
-    // },
     handleSearch() {
       this.temp.page = 1;
       this.getList();
@@ -522,22 +444,6 @@ export default {
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
-    },
-    validateIds() {
-      if (!this.temp.productId) {
-        this.$message({
-          type: "error",
-          message: "请选择已有商品"
-        });
-        return false;
-      } else if (!this.temp.customerId) {
-        this.$message({
-          type: "error",
-          message: "请选择已有客户"
-        });
-        return false;
-      }
-      return true;
     },
     createData() {
       this.$refs["dataForm"].validate(valid => {

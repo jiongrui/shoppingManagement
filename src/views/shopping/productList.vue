@@ -82,27 +82,27 @@
           <span>{{ scope.row._id }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.name')">
+      <el-table-column :label="$t('table.name')" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.spec')">
+      <el-table-column :label="$t('table.spec')" align="center">
         <template slot-scope="scope">
           <span>{{ specObj[scope.row.specId] }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.type')">
+      <el-table-column :label="$t('table.type')" align="center">
         <template slot-scope="scope">
           <span>{{ typeObj[scope.row.typeId] }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.brand')">
+      <el-table-column :label="$t('table.brand')" align="center">
         <template slot-scope="scope">
           <span>{{ brandObj[scope.row.brandId] }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.star')">
+      <el-table-column :label="$t('table.star')" align="center">
         <template slot-scope="scope">
           <svg-icon
             v-for="n in +scope.row.star"

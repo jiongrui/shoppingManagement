@@ -3,14 +3,7 @@
     <div class="filter-container">
       <el-input
         :placeholder="$t('table.customerName')"
-        v-model="listQuery.name"
-        style="width: 200px;"
-        class="filter-item"
-      />
-
-      <el-input
-        :placeholder="$t('table.phone')"
-        v-model="listQuery.phone"
+        v-model="listQuery.customerName"
         style="width: 200px;"
         class="filter-item"
       />
@@ -45,28 +38,18 @@
           <span>{{ scope.row._id }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.customerName')" align="center" width="120">
+      <el-table-column :label="$t('table.customerName')" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.name }}</span>
+          <span>{{ scope.row.customerName }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('table.phone')" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.phone }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="$t('table.address')" min-width="150" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.address }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column :label="$t('table.integral')" width="100" align="center">
+      <el-table-column :label="$t('table.integral')" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.integral }}</span>
         </template>
       </el-table-column>
+
       <el-table-column
         :label="$t('table.updateDate')"
         align="center"
@@ -75,26 +58,6 @@
       >
         <template slot-scope="scope">
           <span>{{ scope.row.updateDate| parseTime() }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('table.actions')"
-        align="center"
-        width="230"
-        class-name="small-padding fixed-width"
-      >
-        <template slot-scope="scope">
-          <el-button
-            type="primary"
-            size="mini"
-            @click="handleUpdate(scope.row)"
-          >{{ $t('table.edit') }}</el-button>
-          <el-button
-            v-if="scope.row.status!='deleted'"
-            size="mini"
-            type="danger"
-            @click="handleDelete(scope.row)"
-          >{{ $t('table.delete') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -115,14 +78,18 @@
         label-width="100px"
         style="width: 400px; margin-left:50px;"
       >
-        <el-form-item :label="$t('table.customerName')" prop="name">
-          <el-input v-model="temp.name" />
+        <el-form-item :label="$t('table.customerName')" prop="customerId">
+          <el-select v-model="temp.customerId" clearable filterable class="filter-item">
+            <el-option
+              v-for="item in customerList"
+              :key="item._id"
+              :label="item.name"
+              :value="item._id"
+            />
+          </el-select>
         </el-form-item>
-        <el-form-item :label="$t('table.phone')" prop="phone">
-          <el-input v-model="temp.phone" />
-        </el-form-item>
-        <el-form-item :label="$t('table.address')" prop="address">
-          <el-input v-model="temp.address" />
+        <el-form-item :label="$t('table.integral')" prop="integral">
+          <el-input v-model.number="temp.integral" type="number" />
         </el-form-item>
         <el-form-item :label="$t('table.remarks')">
           <el-input
@@ -145,12 +112,8 @@
 </template>
 
 <script>
-import {
-  fetchCustomerList,
-  createCustomer,
-  updateCustomer,
-  deleteCustomer
-} from "@/api/customers";
+import { fetchIntegralList, createIntegral } from "@/api/integrals";
+import { fetchCustomerKV } from "@/api/customers";
 import waves from "@/directive/waves"; // Waves directive
 import { parseTime, transformArrayToObject } from "@/utils";
 import Pagination from "@/components/Pagination"; // Secondary package based on el-pagination
@@ -168,11 +131,12 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        phone: undefined,
-        name: undefined,
+        customerName: undefined,
         sort: "-updateDate"
       },
       temp: {},
+      customerObj: {},
+      customerList: [],
       dialogFormVisible: false,
       dialogStatus: "",
       textMap: {
@@ -180,27 +144,42 @@ export default {
         create: "table.create"
       },
       rules: {
-        phone: [
+        customerId: [
           {
             required: true,
-            message: "phone is required",
+            message: "customer is required",
             trigger: "change"
           }
         ],
-        name: [{ required: true, message: "name is required", trigger: "blur" }]
+        integral: [
+          {
+            type: "number",
+            required: true,
+            message: "integral is required",
+            trigger: "blur"
+          }
+        ]
       }
     };
   },
   created() {
+    this.getCustomerList();
     this.getList();
   },
   methods: {
     getList() {
       this.listLoading = true;
-      fetchCustomerList(this.listQuery).then(response => {
+      fetchIntegralList(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         this.listLoading = false;
+      });
+    },
+    getCustomerList() {
+      fetchCustomerKV().then(res => {
+        const data = res.data.data;
+        this.customerList = data;
+        this.customerObj = transformArrayToObject(data);
       });
     },
     sortChange(data) {
@@ -211,9 +190,9 @@ export default {
     resetTemp() {
       this.temp = {
         remarks: "",
-        name: "",
-        phone: "",
-        address: "",
+        customerName: "",
+        customerId: "",
+        integral: "",
         updateDate: new Date(),
         createDate: new Date()
       };
@@ -229,7 +208,8 @@ export default {
     createData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
-          createCustomer(this.temp).then(() => {
+          this.temp.customerName = this.customerObj[this.temp.customerId];
+          createIntegral(this.temp).then(() => {
             this.dialogFormVisible = false;
             this.$message({
               type: "success",
@@ -239,51 +219,6 @@ export default {
           });
         }
       });
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row); // copy obj
-      this.dialogStatus = "update";
-      this.dialogFormVisible = true;
-      this.$nextTick(() => {
-        this.$refs["dataForm"].clearValidate();
-      });
-    },
-    updateData() {
-      this.$refs["dataForm"].validate(valid => {
-        if (valid) {
-          this.temp.updateDate = new Date();
-          updateCustomer(this.temp).then(() => {
-            this.dialogFormVisible = false;
-            this.$message({
-              type: "success",
-              message: "更新成功"
-            });
-            this.getList();
-          });
-        }
-      });
-    },
-    handleDelete(row) {
-      this.$confirm("确定删除?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          deleteCustomer({ _id: row._id }).then(res => {
-            this.$message({
-              type: "success",
-              message: "删除成功"
-            });
-            this.getList();
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除"
-          });
-        });
     }
   }
 };

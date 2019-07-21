@@ -11,24 +11,37 @@ const shoppingRouter = {
     title: "shopping",
     icon: "shopping"
   },
-  children: [
-    {
+  children: [{
       path: "/product-list",
       component: () => import("@/views/shopping/productList"),
       name: "ProductList",
-      meta: { title: "productList" }
+      meta: {
+        title: "productList"
+      }
     },
     {
       path: "/order-list",
       component: () => import("@/views/shopping/orderList"),
       name: "OrderList",
-      meta: { title: "orderList" }
+      meta: {
+        title: "orderList"
+      }
     },
     {
       path: "/customer-list",
       component: () => import("@/views/shopping/customerList"),
       name: "CustomerList",
-      meta: { title: "customerList" }
+      meta: {
+        title: "customerList"
+      }
+    },
+    {
+      path: "/integral-list",
+      component: () => import("@/views/shopping/integralList"),
+      name: "IntegralList",
+      meta: {
+        title: "integralList"
+      }
     }
   ]
 };
